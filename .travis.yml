@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: zxvtTUZgLTOUVqPt5q6FPTeL5TeaS0tBkV7FciAYvfDx9WuRr2aomc/TaPfDzEVWzkMDjA+855gK45oEnQGYRyf4U938Zjo49mNMJxfIeuZoM1IcRmlBQIfw1tvJHR6VHXevD0850CCDIp7dKdmHVEpUk5QJmYKbGDWRZmlIoqVtltpwClbn3OizwOjza7IokT0uNSZYjw5pU5CDXpOqCLAAtvkj4CO1MvBzB0chq4hV7b+6rQRYeEuYwbBvnVOtmDhsymceQHjQzdj/CZV4MKxGr6nWhVcZkof7ozAiCSVc8sRXUv+hejrcwV18XvBSkDupTg8NkKwt+bw60VGIY+xPrZDLa2+o1t/yW1htd7FTp8VQeuXIWAJ3OIb/1gI+3iVczZZlXiGKDoBB3nkHYdx2m/TzTdZLg5faKPlf25Aiz2yvdSkPYa/CFA9zKvjzAwrCAvH+m0gXyD8977Efx3v6OsKfquAd4pN1ZEhsqgOMDLCVKpv7v88Y5qksdiZwKzlCwFUOTpwag4cGKjIXqfQRrEcjIVSfxKH+QUEW0WOedPtYzkljbKT8IHdSpLb45zcViijHyvfPfyMbtTVJSCJ/QkG05eM87KCC73PpNbg9H3usWk2VNth0tC4rdz2N6GS/43fSZjCh3LxjYP/aR0yj8Ne64uk6pujuxsRqZKM=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Songs-of-a-Sentimental-Bloke_4730
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
